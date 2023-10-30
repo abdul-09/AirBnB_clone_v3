@@ -41,17 +41,17 @@ class FileStorage:
             self.__objects[key] = obj
 
     def get(self, cls, id):
-        """retrieves an object of a class with id"""
-        if cls is not None:
-            res = list(
-                filter(
-                    lambda x: type(x) is cls and x.id == id,
-                    self.__objects.values()
-                )
-            )
-            if res:
-                return res[0]
-        return None
+        """
+        Returns the object based on the class and its ID,
+        or None if not found
+        """
+        if type(cls) is str:
+            cls = classes.get(cls)
+        if cls is None:
+            return None
+        for item in self.__objects.values():
+            if item.__class__ == cls and item.id == id:
+                return item
 
     def save(self):
         """serializes __objects to the JSON file (path: __file_path)"""
@@ -62,7 +62,14 @@ class FileStorage:
             json.dump(json_objects, f)
 
     def count(self, cls=None):
-        """retrieves the number of objects of a class or all (if cls==None)"""
+        """
+        Returns the number of objects in storage matching the given class name.
+        If no name is passed, returns the count of all objects in storage.
+        """
+        if type(cls) is str:
+            cls = classes.get(cls)
+        if cls is None:
+            return len(self.all())
         return len(self.all(cls))
 
     def reload(self):
